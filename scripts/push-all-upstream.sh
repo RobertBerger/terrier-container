@@ -1,2 +1,9 @@
-git push --all
-git push --tags
+#if [ "$HOSTNAME" = "main-1-X61s-64-bit" ]; then
+   echo "We are on ${HOSTNAME} so let's push!"
+   git push origin master
+   git push --tags
+   #git push -u origin bbb_porting
+   git push --all origin
+#else
+#   echo "We are on ${HOSTNAME} and not on X61s"
+#fi

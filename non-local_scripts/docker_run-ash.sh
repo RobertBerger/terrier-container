@@ -1,10 +1,8 @@
 source ../container-name.sh
 IMAGE_NAME=$1
-NETWORK_INTERFACE=$2
 
-TAG="v0.2.0"
-
-PUBLIC_PORT="1984"
+# from container-name.sh
+#TAG="v1.1.0"
 
 if [ $# -lt 1 ];
 then
@@ -16,17 +14,16 @@ then
 fi
 
 # remove currently running containers
-echo "+ ID_TO_KILL=\$(docker ps -a -q  --filter ancestor=$1)"
+set -x
 ID_TO_KILL=$(docker ps -a -q  --filter ancestor=$1)
 
-echo "+ docker ps -a"
 docker ps -a
-echo "+ docker stop ${ID_TO_KILL}"
 docker stop ${ID_TO_KILL}
-echo "+ docker rm -f ${ID_TO_KILL}"
 docker rm -f ${ID_TO_KILL}
-echo "+ docker ps -a"
 docker ps -a
+
+# we need to pull latest version
+docker pull ${IMAGE_NAME}
 
 # -t : Allocate a pseudo-tty
 # -i : Keep STDIN open even if not attached
@@ -35,19 +32,9 @@ docker ps -a
 # -l : ??? without it no root@1928719827
 # --cap-drop=all: drop all (root) capabilites
 
-# start ash shell - need to start redis manually
-#echo "+ ID=\$(docker run --cap-drop=all -t -i -d -p ${PUBLIC_PORT}:6379 ${IMAGE_NAME} ash -l)"
-#ID=$(docker run --cap-drop=all -t -i -d -p ${PUBLIC_PORT}:6379 ${IMAGE_NAME} ash -l)
-#echo "+ ID=\$(docker run -t -i -d -p ${PUBLIC_PORT}:1883 ${IMAGE_NAME} ash -l)"
-#ID=$(docker run -t -i -d -p ${PUBLIC_PORT}:1883 ${IMAGE_NAME} ash -l)
-
-echo "+ ID=\$(docker run -v ${PWD}/../../../:/workdir -t -i -d ${IMAGE_NAME} /bin/sh -l)"
+# start ash shell
 ID=$(docker run -v ${PWD}/../../../:/workdir -t -i -d ${IMAGE_NAME} /bin/sh -l)
 
-
-echo "+ ID ${ID}"
-
 # let's attach to it:
-echo "+ docker attach ${ID}"
 docker attach ${ID}
-
+set +x
